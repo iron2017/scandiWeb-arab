@@ -23,7 +23,7 @@ export function ListItem({id, sku, name, price, type, description} : ListItemPro
     }, [id])
 
     return (
-        <Card>
+        <Card style={{width:"100%", boxShadow: "0 1px 6px rgb(0,0,0,0.35)"}}>
             <FormCheck id={''+id} className="delete-checkbox m-1" checked={check} onChange={ch}/>
             <Card.Img variant="top" style={{width:"50%",height:"40%", alignSelf: 'center'}} src={type+".png"} hidden/>
             <Card.Body className="d-flex flex-column justify-content-center align-items-center">

@@ -10,7 +10,7 @@
     width: 0;
     height: 0;
     border-left: 0 solid transparent;
-    border-right: 15px solid #113463;
+    border-right: 15px solid #818181bd;
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
 }
@@ -20,7 +20,7 @@
     width: 0;
     height: 0;
     border-right: 0 solid transparent;
-    border-left: 15px solid #113463;
+    border-left: 15px solid #818181bd;
     border-top: 10px solid transparent;
     border-bottom: 10px solid transparent;
 }

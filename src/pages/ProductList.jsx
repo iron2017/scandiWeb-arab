@@ -28,25 +28,11 @@ function SamplePrevArrow(props) {
     );
 }
 
-export function ProductList(){
-
-    const [listItems, setListItems] = useState([])
-    const [checks,setChecks] = useState([])
-    const [countch,setCountch] = useState(0)
-    const navigate = useNavigate()
+export function ProductList({checks, setCountch, setChecks, getProducts, listItems}){
 
     useEffect(() => {
         getProducts();
     }, []);
-
-    function getProducts(){
-        axios.get('https://juniortestnadir.000webhostapp.com/api/').then(function(response){
-            if(response.data.constructor === Array)
-                setListItems(response.data);
-            else
-                alert(response.data);
-        })
-    }
 
     const add = (temp, val) => {
         temp.push(val)
@@ -70,34 +56,6 @@ export function ProductList(){
         else{
             remove(temp, val)
         }
-        console.log(checks)
-    }
-
-    const massDelete = (event) => {
-        if(countch !== 0)
-            axios.post('https://juniortestnadir.000webhostapp.com/api/deleteproducts.php',checks).then(function(response){
-                if (response.data == 1) {
-                    getProducts()
-                    setChecks([])
-                    setCountch(0)
-                }
-                else if (response.data) {
-                    alert(response.data)
-                }
-                else {
-                    alert("unrecognized error, please contact the support")
-                }
-            })
-        else
-            alert("no products were checked\nplease check some products then try again")
-    }
-
-    const buttonStyle = {
-        marginTop: "0.6%",
-        marginRight: "0.6%",
-        height: "2.5rem",
-        position:"relative",
-        boxShadow: "0 1px 14px rgb(0,0,0,0.8)"
     }
 
     const settings = {
@@ -105,7 +63,7 @@ export function ProductList(){
         infinite: false,
         speed: 500,
         slidesToScroll: 2,
-        rows: 4,
+        rows: 3,
         slidesPerRow: 4,
         nextArrow: <SampleNextArrow />,
         prevArrow: <SamplePrevArrow />
@@ -113,41 +71,12 @@ export function ProductList(){
 
     return (
         <>
-            <Row className="d-flex border-bottom"
-                style={{
-                    position: "relative",
-                    padding: "1rem",
-                    paddingLeft: "3rem",
-                    paddingRight: "3rem",
-                    backgroundColor: "#efefef"}}>
-                <Col className="me-auto">
-                    <h1>Product List</h1>
-                </Col>
-                <Button style={{...buttonStyle, width: "5rem"}}
-                        onClick={() => {navigate("/addproduct");}}
-                >ADD</Button>
-                <Button
-                        style={{...buttonStyle, width: "8rem"}}
-                        id="delete_product_btn"
-                        onClick={massDelete}
-                >MASS DELETE<div className="rounded-circle bg-danger d-flex justify-content-center align-items-center"
-                        style={{
-                            color:"white", 
-                            width:"1.5rem", 
-                            height:"1.5rem", 
-                            position:"absolute", 
-                            bottom:0, right:0,
-                            transform:"translate(25%,25%)"}}>
-                        {countch}
-                    </div>
-                </Button>
-            </Row>
-            <Container style={{minHeight:"700px"}}>
+            <Container style={{minHeight:"69vh"}}>
                 <Slider {...settings}>
                     {listItems.map(item =>(
-                        <Col className="p-1" key={item.id} onChange={changeCheck}>
+                        <div className="p-3" key={item.id} onChange={changeCheck}>
                             <ListItem {...item}/>
-                        </Col>
+                        </div>
                     ))}
                 </Slider>
             </Container>
