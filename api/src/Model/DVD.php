@@ -1,5 +1,9 @@
 <?php
 
+    namespace Model;
+    use Model\Product;
+    use Exception;
+
     class DVD extends Product
     {
         public function __construct()

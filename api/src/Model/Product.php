@@ -1,6 +1,7 @@
 <?php
-    
-    require "DbConnect.php";
+
+    namespace Model;
+    use Exception;
 
     abstract class Product
     {
@@ -15,11 +16,8 @@
 
         public function __construct()
         {
-            $this->objDB = new DbConnect;
-            $this->conn = $this->objDB->connect();
             $this->attributes = array();
         }
-
         
         abstract protected function get_description();
 
@@ -104,6 +102,11 @@
         {
             return $this->typeAttr;
         }
+        
+        public function get_attributes()
+        {
+            return $this->attributes;
+        }
 
         function verify_attributes()
         {
@@ -129,6 +132,7 @@
                 throw new Exception("attribute_value");
             array_push($this->attributes,["name"=>$name, "value"=>$value, "unit"=>$unit]);
         }
+
         function add_attributes($attrs)
         {
             if(empty($attrs))
@@ -137,81 +141,6 @@
                 $unit = is_string($this->unit) ? $this->unit : null;
                 $this->add_attribute($key,$value,$unit);
             }
-        }
-        function save_attributes()
-        {
-            if(empty($this->attributes) || !$this->verify_attributes())
-                throw new Exception("attributes");
-            $sql = "INSERT INTO attributes(name,value,unit,sku_product) VALUES";
-            foreach($this->attributes as $key => $value) {
-                $sql = $sql."(
-                    '".$value["name"]."',
-                    '".$value["value"]."',
-                    '".$value["unit"]."',
-                    '".$this->sku."'
-                ),";
-            }
-            $sql = substr_replace($sql,"", -1);
-            $stmt = $this->conn->prepare($sql);
-            $result = $stmt->execute();
-            return $result;
-        }
-        public function fetch_attributes()
-        {
-            $get_all = "Select * from attributes where sku_product = '".$this->get_sku()."' order by name";
-            $stmt = $this->conn->query($get_all);
-            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            foreach($results as $res) {
-                array_push($this->attributes,["name"=>$res["name"], "value"=>$res["value"], "unit"=>$res["unit"]]);
-            }
-        }
-        public function get_attributes()
-        {
-            return $this->attributes;
-        }
-
-                    /******************** SAVE GETALL DELETE ********************/
-
-        function saveProduct()
-        {
-            $sql = "INSERT INTO products(sku,name,price,type) VALUES(
-                '".$this->get_sku()."',
-                '".$this->get_name()."',
-                ".$this->get_price().",
-                '".$this->get_type()."'
-                )";
-            $stmt = $this->conn->prepare($sql);
-            $result = $stmt->execute();
-            if($result) {
-                try{
-                    $result = $this->save_attributes();
-                } catch(Exception $e){
-                    //delete row if the attributes aren't added
-                    $sql = "DELETE FROM products WHERE sku = '".$this->get_sku()."'";
-                    $stmt = $this->conn->prepare($sql);
-                    $stmt->execute();
-                    throw $e;
-                }
-            }
-            return $result;
-        }
-
-        public function get_All()
-        {
-            $get_all = "Select * from products order by id";
-            $stmt = $this->conn->query($get_all);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        }
-
-        public function delete_Mass($inputs)
-        {
-            if(empty($inputs)){
-                throw new Exception("checks");
-            }
-            $sql = "DELETE p, a FROM products p JOIN attributes a ON p.sku = a.sku_product Where p.id in (".implode(',', $inputs).")";
-            $stmt = $this->conn->prepare($sql);
-            $result = $stmt->execute();
-            return $result;
         }
     }
 ?>

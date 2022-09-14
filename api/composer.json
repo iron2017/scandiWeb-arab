@@ -1,0 +1,14 @@
+{
+    "name": "nadir/api",
+    "description": "routing all to index",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Database\\": "src/",
+            "App\\": "src/Controller/",
+            "Model\\": "src/Model/"
+        }
+    },
+    "minimum-stability": "stable",
+    "require": {}
+}
