@@ -4,15 +4,10 @@
 
 	class DbConnect
 	{
-		// private $server = 'localhost';
-		// private $dbname = 'id19537409_id19537409_jdetesttask';
-		// private $user = 'id19537409_id19537409_nadir';
-		// private $pass = '8CNAJRseP|DZZ#~i';
-
 		private $server = 'localhost';
-		private $dbname = 'jdtesttask';
-		private $user = 'root';
-		private $pass = '';
+		private $dbname = 'id19537409_id19537409_jdetesttask';
+		private $user = 'id19537409_id19537409_nadir';
+		private $pass = '8CNAJRseP|DZZ#~i';
 
 		public function connect()
 		{

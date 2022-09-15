@@ -5,9 +5,9 @@ header("Access-Control-Allow-Headers: *" );
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use App\MainClass;
+use App\Controller;
 
-$controller = new MainClass();
+$controller = new Controller();
 $method = $_SERVER['REQUEST_METHOD'];
 $path = explode('/', $_SERVER['REQUEST_URI']);
 
@@ -24,7 +24,7 @@ switch($method) {
         }
         elseif(isset($path[2]) && $path[2] == 'deleteproducts.php' ) {
             $id_list = json_decode( file_get_contents('php://input') );
-            $controller->delete_Mass($id_list);
+            $controller->delete_products($id_list);
         }
         break;
 }
