@@ -11,9 +11,9 @@ class ComposerStaticInitef5b1bd459b31fb3efacada28841e2ca
         array (
             'Model\\' => 6,
         ),
-        'D' => 
+        'C' => 
         array (
-            'Database\\' => 9,
+            'Controller\\' => 11,
         ),
         'A' => 
         array (
@@ -26,13 +26,13 @@ class ComposerStaticInitef5b1bd459b31fb3efacada28841e2ca
         array (
             0 => __DIR__ . '/../..' . '/src/Model',
         ),
-        'Database\\' => 
+        'Controller\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src',
+            0 => __DIR__ . '/../..' . '/src/Controller',
         ),
         'App\\' => 
         array (
-            0 => __DIR__ . '/../..' . '/src/Controller',
+            0 => __DIR__ . '/../..' . '/Utils',
         ),
     );
 

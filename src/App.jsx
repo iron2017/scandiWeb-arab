@@ -17,7 +17,7 @@ function App() {
   const [checks,setChecks] = useState([])
 
   function getProducts(){
-    axios.get('https://juniortestnadir.000webhostapp.com/api/').then(function(response){
+    axios.get('http://localhost:80/api/index.php').then(function(response){
         if(response.data.constructor === Array)
             setListItems(response.data);
         else

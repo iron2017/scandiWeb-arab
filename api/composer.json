@@ -4,8 +4,8 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Database\\": "src/",
-            "App\\": "src/Controller/",
+            "App\\": "Utils/",
+            "Controller\\": "src/Controller/",
             "Model\\": "src/Model/"
         }
     },

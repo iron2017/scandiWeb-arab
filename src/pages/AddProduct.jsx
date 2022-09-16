@@ -44,13 +44,13 @@ export function AddProduct() {
 
     const handleSubmit = (event) => {
         event.preventDefault()
-        axios.post('https://juniortestnadir.000webhostapp.com/api/addproduct.php',inputs).then(function(response){
+        axios.post('http://localhost:80/api/addproduct.php',inputs).then(function(response){
             setSkuInvalid(false)
             if (response.data == true) {
                 navigate('/');
             }
             else {
-                if(response.data["type"] == "unique") {
+                if(response.data["type"] == "unique" || response.data == "sku is empty") {
                     alert("SKU must be unique")
                     setSkuInvalid(true)
                 }

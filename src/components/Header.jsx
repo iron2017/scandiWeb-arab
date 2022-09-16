@@ -20,7 +20,7 @@ export function Header({countch, checks, setChecks, setCountch, getProducts}) {
     
     const massDelete = (event) => {
         if(countch !== 0)
-            axios.post('https://juniortestnadir.000webhostapp.com/api/deleteproducts.php',checks).then(function(response){
+            axios.post('http://localhost:80/api/deleteproducts.php',checks).then(function(response){
                 if (response.data == 1) {
                     getProducts()
                     setChecks([])

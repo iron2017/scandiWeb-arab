@@ -1,191 +1,152 @@
 <?php
 
-    namespace Model;
-    use Exception;
-    use Database\DbConnect;
+namespace Model;
 
-    abstract class Product
+use App\Queries;
+
+class Product extends Queries
+{
+
+    //product properties
+    private $id;
+    private $sku;
+    private $name;
+    private $price;
+    private $type;
+    private $unit;
+    private $attributes;
+    private $typeAttr;
+
+    public function __construct()
     {
-        //connection
-        private $obj;
-        private $conn;
-        
-        //product properties
-        private $id;
-        private $sku;
-        private $name;
-        private $price;
-        private $type;
-        private $unit;
-        private $attributes;
-        private $typeAttr;
-
-        public function __construct()
-        {
-            $this->obj = new DbConnect();
-            $this->conn = $this->obj->connect();
-            $this->attributes = array();
-        }
-        
-        abstract protected function get_description();
-
-/*** START PROPERTIES SETTERS AND GETTERS ***/
-        function set_id($id)
-        {
-            $this->id = $id;
-        }
-        function get_id()
-        {
-            return $this->id;
-        }
-
-        function set_sku($sku)
-        {
-            $this->sku = $sku;
-        }
-        function get_sku()
-        {
-            return $this->sku;
-        }
-
-        function set_name($name)
-        {
-            $this->name = $name;
-        }
-        function get_name()
-        {
-            return $this->name;
-        }
-        
-        function set_price($price)
-        {
-            $this->price = $price;
-        }
-        function get_price()
-        {
-            return $this->price;
-        }
-          
-        function set_type($type)
-        {
-            $this->type = $type;
-        }
-        function get_type()
-        {
-            return $this->type;
-        }
-          
-        function set_unit($unit)
-        {
-            $this->unit = $unit;
-        }
-        function get_unit()
-        {
-            return $this->unit;
-        }
-          
-        function set_typeAttr($typeAttr)
-        {
-            $this->typeAttr = $typeAttr;
-        }
-        function get_typeAttr()
-        {
-            return $this->typeAttr;
-        }
-
-        function set_attributes($attributes)
-        {
-            $this->attributes = $attributes;
-        }
-        public function get_attributes()
-        {
-            return $this->attributes;
-        }
-        function add_one_attribute($name,$value,$unit)
-        {
-            array_push($this->attributes,["name"=>$name, "value"=>$value, "unit"=>$unit]);
-        }
-
-/*** END PROPERTIES SETTERS AND GETTERS ***/
-
-/*** START DATABASE INSERTS ***/
-
-        function saveProduct()
-        {
-            $sql = "INSERT INTO products(sku,name,price,type) VALUES(
-                '".$this->get_sku()."',
-                '".$this->get_name()."',
-                ".$this->get_price().",
-                '".$this->get_type()."'
-                )";
-            $stmt = $this->conn->prepare($sql);
-            $result = $stmt->execute();
-            if($result) {
-                try{
-                    $result = $this->save_attributes($this);
-                } catch(Exception $e){
-                    //delete row if the attributes weren't added
-                    $sql = "DELETE FROM products WHERE sku = '".$this->get_sku()."'";
-                    $stmt = $this->conn->prepare($sql);
-                    $stmt->execute();
-                    throw $e;
-                }
-            }
-            return $result;
-        }
-
-        function save_attributes()
-        {
-            $current_attributes = $this->get_attributes();
-            $sql = "INSERT INTO attributes(name,value,unit,sku_product) VALUES";
-            $sku = $this->get_sku();
-            foreach($current_attributes as $key => $value) {
-                $sql = $sql."(
-                    '".$value["name"]."',
-                    '".$value["value"]."',
-                    '".$value["unit"]."',
-                    '".$sku."'
-                ),";
-            }
-            $sql = substr_replace($sql,"", -1);
-            $stmt = $this->conn->prepare($sql);
-            $result = $stmt->execute();
-            return $result;
-        }
-
-/*** END DATABASE INSERTS ***/
-
-/*** START FETCH SECTION ***/
-
-        public function get_All()
-        {
-            $get_all = "Select * from products order by id";
-            $stmt = $this->conn->query($get_all);
-            return $stmt->fetchAll();
-        }
-
-        public function fetch_attributes()
-        {
-            $get_all = "Select * from attributes where sku_product = '".$this->get_sku()."' order by name";
-            $stmt = $this->conn->query($get_all);
-            $results = $stmt->fetchAll();
-            foreach($results as $res) {
-                $this->add_one_attribute($res["name"], $res["value"], $res["unit"]);
-            }
-        }
-
-/*** START FETCH SECTION ***/
-
-/*** START DELETE SECTION ***/
-        public function delete_mass($inputs)
-        {
-            $sql = "DELETE p, a FROM products p JOIN attributes a ON p.sku = a.sku_product Where p.id in (".implode(',', $inputs).")";
-            $stmt = $this->conn->prepare($sql);
-            $result = $stmt->execute();
-            return $result;
-        }
-
-/*** END DELETE SECTION ***/
-
+        parent::__construct();
+        $this->attributes = array();
     }
-?>
+
+    function set_properties($inputs)
+    {
+        if (!empty($inputs->id))
+            $this->id = $inputs->id;
+        $this->sku = $inputs->sku;
+        $this->name = $inputs->name;
+        $this->price = $inputs->price;
+        $this->type = $inputs->productType;
+        $this->add_multiple_attributes($inputs->description);
+    }
+    function get_properties()
+    {
+        $row = [
+            "id" => $this->id,
+            "sku" => $this->sku,
+            "name" => $this->name,
+            "price" => $this->price,
+            "type" => $this->type,
+            "description" => $this->get_description()
+        ];
+        return $row;
+    }
+    function get_description()
+    {
+        $attr = $this->get_attributes();
+        if (empty($attr))
+            return "";
+        $arr = $attr[0];
+        return ucfirst($arr["name"]) . " : " . $arr["value"] . " " . $arr["unit"];
+    }
+
+    function add_one_attribute($name, $value, $unit)
+    {
+        array_push($this->attributes, ["name" => $name, "value" => $value, "unit" => $unit]);
+    }
+    function add_multiple_attributes($attributes)
+    {
+        foreach ($attributes as $key => $value) {
+            $unit = is_string($this->unit) ? $this->unit : null;
+            if (!empty($key) && !empty($value) && $value > 0)
+                $this->add_one_attribute($key, $value, $unit);
+        }
+    }
+
+
+    public function save()
+    {
+        return $this->saveProduct($this->get_sku(), $this->get_name(), $this->get_price(), $this->get_type(), $this->get_attributes());
+    }
+
+
+
+
+    /*** basic setters and getters ***/
+    /*** START PROPERTIES SETTERS AND GETTERS ***/
+    function set_id($id)
+    {
+        $this->id = $id;
+    }
+    function get_id()
+    {
+        return $this->id;
+    }
+
+    function set_sku($sku)
+    {
+        $this->sku = $sku;
+    }
+    function get_sku()
+    {
+        return $this->sku;
+    }
+
+    function set_name($name)
+    {
+        $this->name = $name;
+    }
+    function get_name()
+    {
+        return $this->name;
+    }
+
+    function set_price($price)
+    {
+        $this->price = $price;
+    }
+    function get_price()
+    {
+        return $this->price;
+    }
+
+    function set_type($type)
+    {
+        $this->type = $type;
+    }
+    function get_type()
+    {
+        return $this->type;
+    }
+
+    function set_unit($unit)
+    {
+        $this->unit = $unit;
+    }
+    function get_unit()
+    {
+        return $this->unit;
+    }
+
+    function set_typeAttr($typeAttr)
+    {
+        $this->typeAttr = $typeAttr;
+    }
+    function get_typeAttr()
+    {
+        return $this->typeAttr;
+    }
+
+    function set_attributes($attributes)
+    {
+        $this->attributes = $attributes;
+    }
+    function get_attributes()
+    {
+        return $this->attributes;
+    }
+}
