@@ -1,0 +1,2 @@
+# JDTest
+the assignment follows the MVC architecture, the routes are defined in public/index.php using the Router class in Utils folder.<br>the src folder contains controller folder for the MainController where the main application functions are present, and the Model folder where the data models exists which contains getters and setters and handles the database interactions using Queries class present in the folder Utils.<br>We also have Validator class to validate inputs and handle exceptions and errors, and DbConnect class to connect to the database.
