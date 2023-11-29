@@ -30,6 +30,7 @@ export function AddProduct() {
         let id = event.target.id
         let value = event.target.value
         setInputs(values => ({...values, [id]:value}))
+
     }
 
     const handleTypeChange = (event) => {
@@ -44,6 +45,7 @@ export function AddProduct() {
 
     const handleSubmit = (event) => {
         event.preventDefault()
+        inputs.price = Number(inputs.price);
         axios.post('http://localhost:80/api/addproduct.php',inputs).then(function(response){
             setSkuInvalid(false)
             if (response.data == true) {

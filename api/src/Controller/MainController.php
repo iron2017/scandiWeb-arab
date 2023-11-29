@@ -19,13 +19,13 @@ class MainController
         if (!empty($message)) return $message;
 
         $class = 'Model\\' . $inputs->productType;
-        $product = new $class();
-        $product->set_properties($inputs);
+        $products = new $class();
+        $products->set_properties($inputs);
 
-        $message = Validator::verify_product_attributes($product);
+        $message = Validator::verify_product_attributes($products);
         if (!empty($message)) return $message;
 
-        $result = $product->save();
+        $result = $products->save();
         echo json_encode($result);
     }
 

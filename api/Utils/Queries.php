@@ -3,10 +3,11 @@
 namespace App;
 
 use Exception;
+use PDO;
 
 abstract class Queries
 {
-    //connection
+    // Connection
     private $obj;
     private $conn;
 
@@ -18,17 +19,17 @@ abstract class Queries
 
     function get_all()
     {
-        $get_all = "Select * from products order by id";
-        $stmt = $this->conn->query($get_all);
+        $get_all = "SELECT * FROM products ORDER BY id";
         try {
-            $results = $stmt->fetchAll();
+            $stmt = $this->conn->query($get_all);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             return Validator::handle_exceptions($e);
         }
 
-        $listProducts = array();
+        $listProducts = [];
         foreach ($results as $result) {
-            $class = 'Model\\' . $result["type"];
+            $class = 'Model\\' . $result["productType"];
             $product = new $class();
             $product->set_id($result["id"]);
             $product->set_sku($result["sku"]);
@@ -38,63 +39,79 @@ abstract class Queries
             foreach ($attributes as $res) {
                 $product->add_one_attribute($res["name"], $res["value"], $res["unit"]);
             }
-            array_push($listProducts, $product->get_properties());
+            $listProducts[] = $product->get_properties();
         }
         return $listProducts;
     }
 
     function fetch_attributes($sku)
     {
-        $get_all = "Select * from attributes where sku_product = '" . $sku . "' order by name";
-        $stmt = $this->conn->query($get_all);
-        $results = $stmt->fetchAll();
+        $get_all = "SELECT * FROM attributes WHERE sku_product = :sku ORDER BY name";
+        $stmt = $this->conn->prepare($get_all);
+        $stmt->bindParam(':sku', $sku, PDO::PARAM_STR);
+        $stmt->execute();
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return $results;
     }
 
     /*** START DATABASE INSERTS ***/
-    function saveProduct($sku, $name, $price, $type, $attributes)
+    function saveProduct($sku, $name, $price, $productType, $attributes)
     {
-        $sql = "INSERT INTO products(sku,name,price,type) VALUES(
-                '" . $sku . "',
-                '" . $name . "',
-                " . $price . ",
-                '" . $type . "'
-                )";
-        $result = $this->query($sql);
-        if (!is_array($result))
-            $result = $this->save_attributes($sku, $attributes);
-
-        return $result;
+        
+        $sql = "INSERT INTO products(sku, name, price, productType) VALUES(:sku, :name, :price, :productType)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':sku', $sku, PDO::PARAM_STR);
+        $stmt->bindParam(':name', $name, PDO::PARAM_STR);
+        $stmt->bindParam(':price', $price, PDO::PARAM_INT);
+        $stmt->bindParam(':productType', $productType, PDO::PARAM_STR);
+          $stmt->execute();
+        try {
+            
+            $this->save_attributes($sku, $attributes);
+         
+        } catch (PDOException $e) {
+            // Log or handle the exception
+            Validator::handle_exceptions($e);
+            return false;
+        }
     }
 
     function save_attributes($sku, $current_attributes)
     {
-        $sql = "INSERT INTO attributes(name,value,unit,sku_product) VALUES";
-        foreach ($current_attributes as $key => $value) {
-            $sql = $sql . "(
-                    '" . $value["name"] . "',
-                    '" . $value["value"] . "',
-                    '" . $value["unit"] . "',
-                    '" . $sku . "'),";
+        $sql = "INSERT INTO attributes(name, value, unit, sku_product) VALUES(:name, :value, :unit, :sku)";
+        $stmt = $this->conn->prepare($sql);
+
+        foreach ($current_attributes as $value) {
+            $stmt->bindParam(':name', $value["name"], PDO::PARAM_STR);
+            $stmt->bindParam(':value', $value["value"], PDO::PARAM_STR);
+            $stmt->bindParam(':unit', $value["unit"], PDO::PARAM_STR);
+            $stmt->bindParam(':sku', $sku, PDO::PARAM_STR);
+            $stmt->execute();
         }
-        $sql = substr_replace($sql, "", -1);
-        $result = $this->query($sql);
-        if (is_array($result))
-            $result = $this->delete_one($sku);
-        return $result;
+
+       
+        return true;
     }
     /*** END DATABASE INSERTS ***/
 
     /*** START DELETE SECTION ***/
     function delete_mass($inputs)
     {
-        $sql = "DELETE p, a FROM products p LEFT JOIN attributes a ON p.sku = a.sku_product Where p.id in (" . implode(',', $inputs) . ")";
-        return $this->query($sql);
+        $placeholders = implode(',', array_fill(0, count($inputs), '?'));
+
+        $sql = "DELETE p, a FROM products p LEFT JOIN attributes a ON p.sku = a.sku_product WHERE p.id IN ($placeholders)";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($inputs);
+        return $stmt->rowCount() > 0;
     }
+
     function delete_one($sku)
     {
-        $sql = "DELETE FROM products WHERE sku = '" . $sku . "'";
-        return $this->query($sql);
+        $sql = "DELETE FROM products WHERE sku = :sku";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':sku', $sku, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->rowCount() > 0;
     }
     /*** END DELETE SECTION ***/
 
@@ -104,7 +121,8 @@ abstract class Queries
         try {
             $result = $stmt->execute();
         } catch (Exception $e) {
-            return Validator::handle_exceptions($e);
+            Validator::handle_exceptions($e);
+            $result = false;
         }
         return $result;
     }
