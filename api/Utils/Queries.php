@@ -68,6 +68,7 @@ abstract class Queries
         try {
             
             $this->save_attributes($sku, $attributes);
+           return true;
          
         } catch (PDOException $e) {
             // Log or handle the exception

@@ -67,45 +67,50 @@ export function AddProduct() {
 
     return (
         <>
-            <Container style={{paddingBottom:"60px"}}>
-                <Row>
-                    <Form id="product_form" onSubmit={handleSubmit}
-                        style={{
-                            position: "relative",
-                            padding: "1rem",
-                            paddingLeft: "3rem",
-                            paddingRight: "3rem",
-                            backgroundColor: "#efefef"}}>
-                        <Form.Group className="mb-3" onChange={handleChange}>
-                            <Form.Label>SKU</Form.Label>
-                            <Form.Control id="sku" type="text" placeholder="Enter Code" isInvalid={skuInvalid} required/>
-                            <Form.Control.Feedback type="invalid">
-                                Please use a valid SKU.
-                            </Form.Control.Feedback>
-                        </Form.Group>
-                        <Form.Group className="mb-3" onChange={handleChange}>
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control id="name" type="text" placeholder="Enter Name" required/>
-                        </Form.Group>
-                        <Form.Group className="mb-3" onChange={handleChange}>
-                            <Form.Label>Price ($)</Form.Label>
-                            <Form.Control id="price" type="number" placeholder="Enter Price" min={0} required/>
-                        </Form.Group>
-                        <Form.Group className="mb-3" onChange={handleChange} onLoad={handleChange}>
-                            <Form.Label>Type Switcher</Form.Label>
-                            <Form.Select id="productType" onChange={changeDesc} required>
-                                <option value ="" hidden>Type Switcher</option>
-                                <option id="DVD" value="DVD">DVD</option>
-                                <option id="Book" value="Book">Book</option>
-                                <option id="Furniture" value="Furniture">Furniture</option>
-                            </Form.Select>
-                        </Form.Group>
-                        <Form.Group className="mb-3 pb-3" onChange={handleTypeChange}>
-                            {typeP}
-                        </Form.Group>
-                    </Form>
-                </Row>
-            </Container>
+        <Container style={{ paddingBottom: "60px" }}>
+            <Row>
+                <Form
+                    id="product_form"
+                    onSubmit={handleSubmit}
+                    style={{
+                        position: "relative",
+                        padding: "1rem",
+                        paddingLeft: "3rem",
+                        paddingRight: "3rem",
+                        backgroundColor: "#efefef"
+                    }}
+                >
+                    <Form.Group className="mb-3" onChange={handleChange}>
+                        <Form.Label htmlFor="sku">SKU</Form.Label>
+                        <Form.Control id="sku" type="text" placeholder="Enter Code" isInvalid={skuInvalid} required />
+                        <Form.Control.Feedback type="invalid">
+                            Please use a valid SKU.
+                        </Form.Control.Feedback>
+                    </Form.Group>
+                    <Form.Group className="mb-3" onChange={handleChange}>
+                        <Form.Label htmlFor="name">Name</Form.Label>
+                        <Form.Control id="name" type="text" placeholder="Enter Name" required />
+                    </Form.Group>
+                    <Form.Group className="mb-3" onChange={handleChange}>
+                        <Form.Label htmlFor="price">Price ($)</Form.Label>
+                        <Form.Control id="price" type="number" placeholder="Enter Price" min={0} required />
+                    </Form.Group>
+                    <Form.Group className="mb-3" onChange={handleChange}>
+                        <Form.Label htmlFor="productType">Type Switcher</Form.Label>
+                        <Form.Select id="productType" onChange={changeDesc} required>
+                            <option value="" hidden>Type Switcher</option>
+                            <option id="DVD" value="DVD">DVD</option>
+                            <option id="Book" value="Book">Book</option>
+                            <option id="Furniture" value="Furniture">Furniture</option>
+                        </Form.Select>
+                    </Form.Group>
+                    <Form.Group className="mb-3 pb-3" onChange={handleTypeChange}>
+                        {typeP}
+                    </Form.Group>
+                </Form>
+            </Row>
+        </Container>
+
         </>
     );
 }

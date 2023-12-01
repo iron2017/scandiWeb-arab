@@ -1,8 +1,12 @@
 /* CSS */
+@import url('https://fonts.googleapis.com/css2?family=Nova+Square&display=swap');
 .slide-arrow{
     position: absolute;
     top: 50%;
     margin-top: -15px;
+}
+body {
+    font-family: 'Nova Square', sans-serif;
 }
 .prev-arrow{
     cursor: pointer;
